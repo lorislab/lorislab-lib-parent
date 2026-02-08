@@ -1,0 +1,292 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.lorislab.lib</groupId>
+    <artifactId>lorislab-lib-parent</artifactId>
+    <version>999-SNAPSHOT</version>
+    <name>lorislab-lib-parent</name>
+    <packaging>pom</packaging>
+
+    <description>Lorislab library parent</description>
+    <url>https://github.com/lorislab/lorislab-lib-parent</url>
+    <inceptionYear>2025</inceptionYear>
+
+    <organization>
+        <name>lorislab</name>
+        <url>https://github.com/lorislab</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <id>andrejpetras</id>
+            <name>andrejpetras</name>
+            <organization>lorislab</organization>
+            <organizationUrl>https://github.com/lorislab</organizationUrl>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git@github.com:lorislab/lorislab-lib-parent.git</connection>
+        <developerConnection>scm:git:git@github.com:lorislab/lorislab-lib-parent.git</developerConnection>
+        <url>https://github.com/lorislab/lorislab-lib-parent</url>
+    </scm>
+
+    <properties>
+        <!-- build -->
+        <format.skip>false</format.skip>
+
+        <!-- Maven configuration -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.release>25</maven.compiler.release>
+        <maven.compiler.parameters>true</maven.compiler.parameters>
+        <maven.formatter-plugin.version>2.29.0</maven.formatter-plugin.version>
+        <maven.impsort-plugin.version>1.13.0</maven.impsort-plugin.version>
+        <maven.enforcer-plugin.version>3.6.2</maven.enforcer-plugin.version>
+
+        <!-- Maven central release configuration -->
+        <central-publishing-maven-plugin.version>0.10.0</central-publishing-maven-plugin.version>
+        <source-plugin.version>3.4.0</source-plugin.version>
+        <javadoc-plugin.version>3.12.0</javadoc-plugin.version>
+        <gpg-plugin.version>3.2.8</gpg-plugin.version>
+
+        <!-- Other -->
+        <lorislab-dev-config.version>1.0.0</lorislab-dev-config.version>
+
+        <!-- maven-enforcer-plugin -->
+        <maven.min.version>3.9.12</maven.min.version>
+        <jdk.min.version>${maven.compiler.release}</jdk.min.version>
+        <insecure.repositories>ERROR</insecure.repositories>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven.enforcer-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce-java-version</id>
+                        <goals>
+                        <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                        <rules>
+                            <bannedRepositories>
+                            <message>To build this project, don't use maven repositories over HTTP. Please use HTTPS in your settings.xml or run the build with property insecure.repositories=WARN</message>
+                            <level>${insecure.repositories}</level>
+                            <bannedRepositories>
+                                <bannedRepository>http://*</bannedRepository>
+                            </bannedRepositories>
+                            <bannedPluginRepositories>
+                                <bannedPluginRepository>http://*</bannedPluginRepository>
+                            </bannedPluginRepositories>
+                            </bannedRepositories>
+                            <requireJavaVersion>
+                            <message>To build this project JDK ${jdk.min.version} (or greater) is required. Please install it.</message>
+                            <version>${jdk.min.version}</version>
+                            </requireJavaVersion>
+                        </rules>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>enforce-maven-version</id>
+                        <goals>
+                        <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                        <rules>
+                            <requireMavenVersion>
+                            <message>To build this project Maven ${maven.min.version} (or greater) is required. Please install it.</message>
+                            <version>${maven.min.version}</version>
+                            </requireMavenVersion>
+                        </rules>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>validate-project-structure</id>
+                        <goals>
+                        <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                        <rules>
+                            <requireMatchingCoordinates>
+                            <groupIdPattern>org\.lorislab.*</groupIdPattern>
+                            <message>All Lorislab projects must have a groupId starting with 'org.lorislab'</message>
+                            </requireMatchingCoordinates>
+                        </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>net.revelc.code.formatter</groupId>
+                <artifactId>formatter-maven-plugin</artifactId>
+                <version>${maven.formatter-plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.lorislab.dev</groupId>
+                        <artifactId>lorislab-dev-config</artifactId>
+                        <version>${lorislab-dev-config.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <configFile>eclipse-format.xml</configFile>
+                    <lineEnding>LF</lineEnding>
+                    <skip>${format.skip}</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>net.revelc.code</groupId>
+                <artifactId>impsort-maven-plugin</artifactId>
+                <version>${maven.impsort-plugin.version}</version>
+                <configuration>
+                    <groups>java.,javax.,jakarta.,org.,com.</groups>
+                    <staticGroups>*</staticGroups>
+                    <skip>${format.skip}</skip>
+                    <removeUnused>true</removeUnused>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>format</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>!no-format</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>net.revelc.code.formatter</groupId>
+                        <artifactId>formatter-maven-plugin</artifactId>
+                        <version>${maven.formatter-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>process-sources</phase>
+                                <goals>
+                                    <goal>format</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>net.revelc.code</groupId>
+                        <artifactId>impsort-maven-plugin</artifactId>
+                        <version>${maven.impsort-plugin.version}</version>
+                        <configuration>
+                            <removeUnused>true</removeUnused>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>sort-imports</id>
+                                <goals>
+                                    <goal>sort</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+      <profile>
+            <id>release</id>
+            <activation>
+                <property>
+                    <name>release</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${central-publishing-maven-plugin.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <autoPublish>true</autoPublish>
+                        </configuration>
+                    </plugin>
+                    <!-- Generate source code artifact -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${source-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Generate javadoc artifact -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${javadoc-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Sign artifacts before upload -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${gpg-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <!-- Maven central repository -->
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
+</project>
